@@ -1,7 +1,12 @@
 var LingoApp = function() {
+	window.Dispatcher = new Dispatcher();
+	
 	this.Start = function() {
-		var lingo = new Lingo();
 		var gui = new Gui();
+		var lingo = new Lingo();
+		
+		gui.TestSubscribe();
+		lingo.TestPublish();
 	};
 };
 

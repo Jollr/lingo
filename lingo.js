@@ -4,4 +4,9 @@ var Lingo = function() {
 	this.GetGuesses = function() {
 		return guesses;
 	};
+	
+	this.TestPublish = function() {
+		Dispatcher.Publish('test', {a: 'asdf' });
+		Dispatcher.Publish('test2', {a: 'qwer' });
+	};
 };
