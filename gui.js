@@ -2,7 +2,7 @@ var Gui = function() {
 	var R = React.DOM;
 	
 	var charInput = function() {
-		return R.input({type: "text"});
+		return R.div({className: 'charBox'});
 	};
 	
 	var guessBox = function(numberOfCharacters) {
