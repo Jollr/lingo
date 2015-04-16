@@ -1,14 +1,21 @@
 var Gui = function() {
+	var R = React.DOM;
 	
-	var onTest = function(message) {
-		$('#guesses').html(message.a);
-	};
-	
-	this.TestSubscribe = function() {
-		Dispatcher.Subscribe('test2', onTest);
-		
-		Dispatcher.Subscribe('test', function(message) {
-			console.log(message.a);
-		});
-	};
+	var Guessbox = React.createClass({ 
+		render: function() {
+			return R.div({
+				children: 'Hello world!'
+				/*children: [ 
+					R.input({type: "text"}),
+					R.input({type: "text"})
+				]*/
+			});
+		}
+	});
+
+	React.render(
+		React.createElement(Guessbox, {}),
+		//$('#guesses')
+		document.getElementById('guesses')
+	);
 };
