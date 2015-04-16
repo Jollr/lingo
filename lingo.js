@@ -1,5 +1,8 @@
 var Lingo = function() {
-	var guesses = Immutable.List.of('jolle', 'kevin', 'knako');
+	//var guesses = Immutable.List.of('jolle', 'kevin', 'knako');
+	var numberOfCharacters = 10;
 	
-	Dispatcher.Publish('newGuess', {guesses: guesses});
+	this.Start = function() {
+		Dispatcher.Publish('started', {numberOfCharacters: numberOfCharacters});
+	};
 };

@@ -1,21 +1,31 @@
 var Gui = function() {
 	var R = React.DOM;
 	
-	var Guessbox = React.createClass({ 
-		render: function() {
-			return R.div({
-				children: 'Hello world!'
-				/*children: [ 
-					R.input({type: "text"}),
-					R.input({type: "text"})
-				]*/
-			});
-		}
+	var charInput = function() {
+		return R.input({type: "text"});
+	};
+	
+	var guessBox = function(numberOfCharacters) {
+		return React.createClass({ 
+			render: function() {
+				var inputs = [];
+				for (var n = 0; n < numberOfCharacters; n++) {
+					inputs.push(charInput());
+				}
+				return R.div({
+					children: inputs
+				});
+			}
+		});
+	};
+	
+	Dispatcher.Subscribe('started', function(message) {
+		React.render(
+			React.createElement(guessBox(message.numberOfCharacters), {}),
+			//$('#guesses')
+			document.getElementById('guesses')
+		);
 	});
 
-	React.render(
-		React.createElement(Guessbox, {}),
-		//$('#guesses')
-		document.getElementById('guesses')
-	);
+	
 };

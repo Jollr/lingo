@@ -4,6 +4,7 @@ var LingoApp = function() {
 	this.Start = function() {
 		var gui = new Gui();
 		var lingo = new Lingo();
+		lingo.Start();
 	};
 };
 
