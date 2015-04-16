@@ -22,10 +22,7 @@ var Gui = function() {
 	Dispatcher.Subscribe('started', function(message) {
 		React.render(
 			React.createElement(guessBox(message.numberOfCharacters), {}),
-			//$('#guesses')
-			document.getElementById('guesses')
+			$('#guesses')[0]
 		);
 	});
-
-	
 };
