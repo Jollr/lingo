@@ -16,7 +16,7 @@ var Lingo = function() {
 	var currentGame = new SingleGameOfLingo(currentWord);
 	
 	var onLetter = function(letter) {
-		currentGame.Letter(letter);
+		currentGame.Letter(new Letter(letter));
 	};
 	
 	var onGuessFinalized = function() {
@@ -27,5 +27,7 @@ var Lingo = function() {
 		Dispatcher.Subscribe('letterTyped', function(message) {onLetter(message.letter)});
 		Dispatcher.Subscribe('finalizeGuessKey', function(message) {onGuessFinalized();});
 		Dispatcher.Publish('started', {numberOfCharacters: numberOfCharacters, guessesPerWord: guessesPerWord})
+		
+		currentGame.Start();
 	};
 };
