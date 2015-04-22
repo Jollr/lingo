@@ -41,7 +41,7 @@ var LetterGrid = function() {
 		var word = grid.get(wordIndex);
 		
 		if (letterIndex >= word.size) return '';
-		return word.get(letterIndex);
+		return word.get(letterIndex).AsChar();
 	};
 };
 
