@@ -18,6 +18,11 @@ var Gui = function() {
 		letterGrid.UpdateCurrentGuess(message.guess);
 		render();
 	});
+	
+	Dispatcher.Subscribe('guessFinalized', function(message) {
+		letterGrid.FinalizeCurrentGuess();
+		render();
+	});
 };
 
 var LetterGrid = function() {
@@ -25,6 +30,10 @@ var LetterGrid = function() {
 	
 	this.UpdateCurrentGuess = function(guess) {
 		grid = grid.set(grid.size - 1, guess);
+	};
+	
+	this.FinalizeCurrentGuess = function() {
+		grid = grid.push(new Immutable.List());
 	};
 	
 	this.At = function(wordIndex, letterIndex) {

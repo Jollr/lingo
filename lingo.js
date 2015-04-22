@@ -28,6 +28,7 @@ var Lingo = function() {
 	var onGuessFinalized = function() {
 		if (!guessHasEnoughLetters()) return;
 		
+		currentGuess = new Immutable.List();
 		Dispatcher.Publish('guessFinalized', { });
 	};
 	
