@@ -1,7 +1,9 @@
 var Gui = function() {	
 	var playField;
+	var letterGrid = new LetterGrid();
+	
 	Dispatcher.Subscribe('started', function(message) {
-		playField = new PlayField(message.numberOfCharacters, message.guessesPerWord);
+		playField = new PlayField(message.numberOfCharacters, message.guessesPerWord, letterGrid);
 		React.render( 
 			React.createElement(playField.GetComponent(), {}),
 			$('#guesses')[0]
@@ -13,13 +15,26 @@ var Gui = function() {
 	});
 };
 
-var PlayField = function(numberOfCharacters, guessesPerWord) {
+var LetterGrid = function() {
+	var grid = Immutable.List.of(new Immutable.List());
+	
+	this.At = function(wordIndex, letterIndex) {
+		if (wordIndex > grid.size) return '';
+		var word = grid.get(wordIndex);
+		
+		if (letterIndex > word.size) return '';
+		return word.get(letterIndex);
+	};
+};
+
+var PlayField = function(numberOfCharacters, guessesPerWord, letterGrid) {
 	var R = React.DOM;
-	var rows = new Immutable.List();
-	var rowIndex = 0;
 	
 	var letterBox = function() {
-		return R.div({className: 'charBox'});
+		return R.div({
+			children: R.span(null, letterGrid.At(0, 0)),
+			className: 'charBox'
+		});
 	};
 	
 	var guessRow = function(children) {
