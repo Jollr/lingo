@@ -37,11 +37,11 @@ var LetterGrid = function() {
 	};
 	
 	this.At = function(wordIndex, letterIndex) {
-		if (wordIndex >= grid.size) return '';
+		if (wordIndex >= grid.size) return new Letter('');
 		var word = grid.get(wordIndex);
 		
-		if (letterIndex >= word.size) return '';
-		return word.get(letterIndex).AsChar();
+		if (letterIndex >= word.size) return new Letter('.');
+		return word.get(letterIndex);
 	};
 };
 
@@ -49,9 +49,11 @@ var PlayField = function(numberOfCharacters, guessesPerWord, letterGrid) {
 	var R = React.DOM;
 	
 	var letterBox = function(wordIndex, letterIndex) {
+		var letter = letterGrid.At(wordIndex, letterIndex);
+		
 		return R.div({
-			children: R.span(null, letterGrid.At(wordIndex, letterIndex)),
-			className: 'charBox'
+			children: R.span(null, letter.AsChar()),
+			className: 'charBox ' + letter.GetState()
 		});
 	};
 	

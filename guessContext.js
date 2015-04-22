@@ -6,7 +6,7 @@ var Letter = function(asChar) {
 	this.AsChar = function() { return asChar; }
 	this.Evaluate = function(guess, index) {
 		if (guess.get(index).Equals(this)) {
-			state = 'correctSpot';
+			state = 'correct';
 		}
 		else if (guess.filter(this.Equals).size > 0) {
 			state = 'inWord'

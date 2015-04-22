@@ -11,5 +11,13 @@ body {
 	float: left;
 	border-style: solid;
 	border-color: #EEEEEE;
-	text-align: center;
+	text-align: center;	
+}
+
+.charBox.correct {
+	background: red;
+}
+
+.charBox.inWord {
+	background: yellow;
 }
