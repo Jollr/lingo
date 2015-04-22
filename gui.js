@@ -22,22 +22,19 @@ var PlayField = function(numberOfCharacters, guessesPerWord) {
 		return R.div({className: 'charBox'});
 	};
 	
-	for (var n = 0; n < guessesPerWord; n++) {
-		var row = new Immutable.List();
-		
-		for (var m = 0; m < numberOfCharacters; m++) {
-			row = row.push(letterBox());
-		}
-		
-		rows = rows.push(row);
-	}
+	var guessRow = function(children) {
+		return R.div( {
+			children: children, 
+			className: 'guessRow row'});
+	};
 	
-	var rowDivs = [];
-	for (var n = 0; n < guessesPerWord; n++) {
-		var rowChildren = rows.get(n).toArray();
-		rowDivs.push(R.div( {children: rowChildren, className: 'guessRow row'}));
-	}
+	var rowDivs = Immutable
+		.Range(0, guessesPerWord)
+		.map(function() {return Immutable.Range(0, numberOfCharacters).map(letterBox).toArray(); })
+		.map(guessRow)
+		.toArray();
 	
+
 	this.GetComponent = function () {
 		return React.createClass({ 
 			render: function() {
