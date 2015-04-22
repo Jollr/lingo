@@ -3,7 +3,7 @@ var Lingo = function() {
 	var currentGuess = new Immutable.List();
 	var wordIndex = 0;
 	var numberOfCharacters = 5;
-	var guessesPerWord = 6;
+	var guessesPerWord = 5;
 	var currentWord = words.get(wordIndex);
 	
 	

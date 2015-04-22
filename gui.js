@@ -2,27 +2,37 @@ var Gui = function() {
 	var playField;
 	var letterGrid = new LetterGrid();
 	
-	Dispatcher.Subscribe('started', function(message) {
-		playField = new PlayField(message.numberOfCharacters, message.guessesPerWord, letterGrid);
+	var render = function() {
 		React.render( 
 			React.createElement(playField.GetComponent(), {}),
 			$('#guesses')[0]
 		);
+	};
+	
+	Dispatcher.Subscribe('started', function(message) {
+		playField = new PlayField(message.numberOfCharacters, message.guessesPerWord, letterGrid);
+		render();
 	});
 	
 	Dispatcher.Subscribe('guessUpdate', function(message) {
-		//playField.UpdateGuess(message.guess);
+		letterGrid.UpdateCurrentGuess(message.guess);
+		render();
 	});
 };
 
 var LetterGrid = function() {
 	var grid = Immutable.List.of(new Immutable.List());
 	
+	this.UpdateCurrentGuess = function(guess) {
+		var index = grid.size - 1;
+		grid = grid.set(index, guess);
+	};
+	
 	this.At = function(wordIndex, letterIndex) {
-		if (wordIndex > grid.size) return '';
+		if (wordIndex >= grid.size) return '';
 		var word = grid.get(wordIndex);
 		
-		if (letterIndex > word.size) return '';
+		if (letterIndex >= word.size) return '';
 		return word.get(letterIndex);
 	};
 };
@@ -30,9 +40,9 @@ var LetterGrid = function() {
 var PlayField = function(numberOfCharacters, guessesPerWord, letterGrid) {
 	var R = React.DOM;
 	
-	var letterBox = function() {
+	var letterBox = function(wordIndex, letterIndex) {
 		return R.div({
-			children: R.span(null, letterGrid.At(0, 0)),
+			children: R.span(null, letterGrid.At(wordIndex, letterIndex)),
 			className: 'charBox'
 		});
 	};
@@ -45,26 +55,21 @@ var PlayField = function(numberOfCharacters, guessesPerWord, letterGrid) {
 	
 	var rowDivs = Immutable
 		.Range(0, guessesPerWord)
-		.map(function() {return Immutable.Range(0, numberOfCharacters).map(letterBox).toArray(); })
-		.map(guessRow)
-		.toArray();
-	
+		.map(function(i) {
+			return Immutable.Range(0, numberOfCharacters).map(
+				function(j) {
+					return letterBox(i, j);
+				}
+			).toArray(); })
+		.map(guessRow);
 
 	this.GetComponent = function () {
 		return React.createClass({ 
 			render: function() {
 				return R.div({
-					children: rowDivs
+					children: rowDivs.toArray()
 				});
 			}
 		});
 	};
-	
-	/*this.UpdateGuess = function(guess) {
-		var row = rows.get(rowIndex);
-		var n = 0;
-		for (n = 0; n < guess.size; n++) {
-			row.get(n).html(guess.get(n));
-		}
-	};*/
 };
