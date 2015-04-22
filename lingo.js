@@ -1,4 +1,23 @@
+var Guess = function(wordSize) {
+	var letters = new Immutable.List();
+	
+	this.IsFinished = function() {
+		return letters.size >= wordSize;
+	};
+	
+	this.Add = function(letter) {
+		letters = letters.push(letter);
+	};
+	
+	this.GetLetters = function() {
+		return letters;
+	};
+};
+
 var Lingo = function() {
+	var numberOfCharacters = 5;
+	var guessesPerWord = 5;
+
 	var sToImList = function(str) {
 		var list = new Immutable.List();
 		for (var i = 0; i < str.length; i++) {
@@ -8,27 +27,22 @@ var Lingo = function() {
 	};
 
 	var words = Immutable.Seq.of('JOLLE', 'KEVIN', 'KNAKO').map(sToImList);
-	var currentGuess = new Immutable.List();
 	var wordIndex = 0;
-	var numberOfCharacters = 5;
-	var guessesPerWord = 5;
+	
+	var currentGuess = new Guess(numberOfCharacters);
 	var currentWord = words.get(wordIndex);
 	
-	var guessHasEnoughLetters = function() {
-		return currentGuess.size >= currentWord.size;
-	};
-	
 	var onLetter = function(letter) {
-		if (guessHasEnoughLetters()) return;
+		if (currentGuess.IsFinished()) return;
 		
-		currentGuess = currentGuess.push(letter);
-		Dispatcher.Publish('guessUpdate', {guess: currentGuess});
+		currentGuess.Add(letter);
+		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
 	};
 	
 	var onGuessFinalized = function() {
-		if (!guessHasEnoughLetters()) return;
+		if (!currentGuess.IsFinished()) return;
 		
-		currentGuess = new Immutable.List();
+		currentGuess = new Guess(numberOfCharacters);
 		Dispatcher.Publish('guessFinalized', { });
 	};
 	
