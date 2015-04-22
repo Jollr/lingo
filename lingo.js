@@ -12,25 +12,15 @@ var Lingo = function() {
 
 	var words = Immutable.Seq.of('JOLLE', 'KEVIN', 'KNAKO').map(sToImList);
 	var wordIndex = 0;
-	
-	var currentGuess = new Guess(numberOfCharacters);
 	var currentWord = words.get(wordIndex);
+	var currentGame = new SingleGameOfLingo(currentWord);
 	
 	var onLetter = function(letter) {
-		if (currentGuess.IsFinished()) return;
-		
-		currentGuess.Add(new Letter(letter));
-		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
+		currentGame.Letter(letter);
 	};
 	
 	var onGuessFinalized = function() {
-		if (!currentGuess.IsFinished()) return;
-		
-		currentGuess.Evaluate(currentWord);
-		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
-		
-		currentGuess = new Guess(numberOfCharacters);
-		Dispatcher.Publish('guessFinalized', { });
+		currentGame.FinalizeGuess();
 	};
 	
 	this.Start = function() {

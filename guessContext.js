@@ -36,3 +36,24 @@ var Guess = function(wordSize) {
 		Immutable.Range(0, wordSize).forEach(function(index) {letters.get(index).Evaluate(word, index);});
 	};
 };
+
+var SingleGameOfLingo = function(word) {
+	var currentGuess = new Guess(word.size);
+	
+	this.Letter = function(letter) {
+		if (currentGuess.IsFinished()) return;
+		
+		currentGuess.Add(new Letter(letter));
+		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
+	};
+	
+	this.FinalizeGuess = function() {
+		if (!currentGuess.IsFinished()) return;
+		
+		currentGuess.Evaluate(word);
+		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
+		
+		currentGuess = new Guess(word.size);
+		Dispatcher.Publish('guessFinalized', { });
+	};
+};
