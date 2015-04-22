@@ -24,8 +24,7 @@ var LetterGrid = function() {
 	var grid = Immutable.List.of(new Immutable.List());
 	
 	this.UpdateCurrentGuess = function(guess) {
-		var index = grid.size - 1;
-		grid = grid.set(index, guess);
+		grid = grid.set(grid.size - 1, guess);
 	};
 	
 	this.At = function(wordIndex, letterIndex) {
