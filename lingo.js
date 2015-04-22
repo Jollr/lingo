@@ -1,18 +1,18 @@
 var Letter = function(asChar) {
 	var state = 'open';
 	
-	this.EqualTo = function(otherLetter) { return otherLetter.AsChar() == asChar; }
+	this.Equals = function(otherLetter) { return otherLetter.AsChar() == asChar; }
 	this.GetState = function() { return state; }
 	this.AsChar = function() { return asChar; }
 	this.Evaluate = function(guess, index) {
 		if (guess.get(index).Equals(this)) {
-			status = 'correctSpot';
+			state = 'correctSpot';
 		}
-		else if (guess.filter(EqualTo).size > 0) {
-			status = 'inWord'
+		else if (guess.filter(this.Equals).size > 0) {
+			state = 'inWord'
 		} 
 		else {
-			status = 'incorrect';
+			state = 'incorrect';
 		}
 	};
 };
@@ -30,6 +30,10 @@ var Guess = function(wordSize) {
 	
 	this.GetLetters = function() {
 		return letters;
+	};
+	
+	this.Evaluate = function(word) {
+		Immutable.Range(0, wordSize).forEach(function(index) {letters.get(index).Evaluate(word, index);});
 	};
 };
 
@@ -60,6 +64,9 @@ var Lingo = function() {
 	
 	var onGuessFinalized = function() {
 		if (!currentGuess.IsFinished()) return;
+		
+		currentGuess.Evaluate(currentWord);
+		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
 		
 		currentGuess = new Guess(numberOfCharacters);
 		Dispatcher.Publish('guessFinalized', { });
