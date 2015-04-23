@@ -40,8 +40,14 @@ var Guess = function(word) {
 		letters = letters.set(index, letter);
 	};
 	
-	this.Set = function(letter, index) {
-		letters = letters.set(index, letter);
+	this.PrefillByPreviousGuesses = function(prevGuesses) {
+		Immutable.Range(1, word.size)
+			.filter(function(i) {
+				return prevGuesses
+					.map(function(g) { return g.GetLetters().get(i); })
+					.some(function(l) { return l.Equals(word.get(i)); })
+			})
+			.forEach( function(i) { letters = letters.set( i, new Letter(word.get(i).AsChar(), true, 'correct')); });
 	};
 	
 	this.GetLetters = function() {
@@ -64,15 +70,7 @@ var SingleGameOfLingo = function(word) {
 	var nextGuess = function() {
 		guesses = guesses.push(currentGuess);
 		currentGuess = new Guess(word);
-		
-		// Prefill already known letters
-		Immutable.Range(1, word.size)
-			.filter(function(i) {
-				return guesses
-					.map(function(g) { return g.GetLetters().get(i); })
-					.some(function(l) { return l.Equals(word.get(i)); })
-			})
-			.forEach( function(i) { currentGuess.Set( new Letter(word.get(i).AsChar(), true, 'correct'), i); });
+		currentGuess.PrefillByPreviousGuesses(guesses);
 	};
 	
 	this.Letter = function(letter) {
