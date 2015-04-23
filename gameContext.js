@@ -1,43 +1,39 @@
-var Letter = function(asChar, overwritable, initialState) {
+var Letter = function(asChar, initialState) {
 	var state = 'open';
 	if (initialState) { state = initialState; }
 	
 	this.Equals = function(otherLetter) { return otherLetter.AsChar() == asChar; }
 	this.GetState = function() { return state; }
 	this.AsChar = function() { return asChar; }
-	this.Evaluate = function(guess, index) {
-		if (guess.get(index).Equals(this)) {
+	this.Evaluate = function(word, index) {
+		if (word.get(index).Equals(this)) {
 			state = 'correct';
 		}
-		else if (guess.filter(this.Equals).size > 0) {
+		else if (word.filter(this.Equals).size > 0) {
 			state = 'inWord'
 		} 
 		else {
 			state = 'incorrect';
 		}
 	};
-	this.IsOverwritable = function() {
-		return overwritable;
-	};
 };
 
 var Guess = function(word) {
-	var placeholder = function() { return new Letter('.', true); };
-
-	var letters = Immutable.List.of(new Letter(word.get(0).AsChar(), false, 'correct'))
+	var placeholder = function() { return new Letter('.'); };
+	
+	var letters = Immutable.List.of(new Letter(word.get(0).AsChar(), 'correct'))
 		.concat(Immutable.Range(1, word.size).map( placeholder ))
 		.toList();
+		
+	var nextLetterIndex = 1;
 	
 	this.IsFinished = function() {
-		return !letters.some(function(l) { return l.IsOverwritable(); });
+		return nextLetterIndex >= word.size;
 	};
 	
-	this.Add = function(letter) {
-		var index = Immutable.Range(0, word.Size)
-			.filter(function (i) { return letters.get(i).IsOverwritable(); })
-			.first();
-		
-		letters = letters.set(index, letter);
+	this.Add = function(letter) {		
+		letters = letters.set(nextLetterIndex, letter);
+		nextLetterIndex++;
 	};
 	
 	this.PrefillByPreviousGuesses = function(prevGuesses) {
@@ -47,7 +43,7 @@ var Guess = function(word) {
 					.map(function(g) { return g.GetLetters().get(i); })
 					.some(function(l) { return l.Equals(word.get(i)); })
 			})
-			.forEach( function(i) { letters = letters.set( i, new Letter(word.get(i).AsChar(), true, 'correct')); });
+			.forEach( function(i) { letters = letters.set( i, new Letter(word.get(i).AsChar(), 'correct')); });
 	};
 	
 	this.GetLetters = function() {
@@ -59,6 +55,9 @@ var Guess = function(word) {
 	};
 	
 	this.Backspace = function() {
+		if (nextLetterIndex == 0) {return;}
+		nextLetterIndex--;
+		letters = letters.set(nextLetterIndex, placeholder());
 	};
 };
 
@@ -92,7 +91,8 @@ var SingleGameOfLingo = function(word) {
 	};
 	
 	this.Backspace = function () {
-		guess.Backspace();
+		currentGuess.Backspace();
+		publishGuessUpdate();
 	};
 	
 	this.Start = function() {
