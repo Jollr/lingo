@@ -1,7 +1,6 @@
 var Letter = function(asChar, overwritable, initialState) {
-	var state = '';
-	if (!initialState) { state = 'open'; }
-	else { state = initialState; }
+	var state = 'open';
+	if (initialState) { state = initialState; }
 	
 	this.Equals = function(otherLetter) { return otherLetter.AsChar() == asChar; }
 	this.GetState = function() { return state; }
@@ -23,8 +22,10 @@ var Letter = function(asChar, overwritable, initialState) {
 };
 
 var Guess = function(word) {
+	var placeholder = function() { return new Letter('.', true); };
+
 	var letters = Immutable.List.of(new Letter(word.get(0).AsChar(), false, 'correct'))
-		.concat(Immutable.Range(1, word.size).map( function() { return new Letter('.', true); }))
+		.concat(Immutable.Range(1, word.size).map( placeholder ))
 		.toList();
 	
 	this.IsFinished = function() {
@@ -50,11 +51,15 @@ var Guess = function(word) {
 	this.Evaluate = function(word) {
 		Immutable.Range(0, word.size).forEach(function(index) {letters.get(index).Evaluate(word, index);});
 	};
+	
+	this.Backspace = function() {
+	};
 };
 
 var SingleGameOfLingo = function(word) {
 	var currentGuess = new Guess(word);
 	var guesses = Immutable.List.of(currentGuess);
+	var publishGuessUpdate = function() {Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});};
 	
 	var nextGuess = function() {
 		guesses = guesses.push(currentGuess);
@@ -74,21 +79,25 @@ var SingleGameOfLingo = function(word) {
 		if (currentGuess.IsFinished()) return;
 		
 		currentGuess.Add(letter);
-		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
+		publishGuessUpdate();
 	};
 	
 	this.FinalizeGuess = function() {
 		if (!currentGuess.IsFinished()) return;
 		
 		currentGuess.Evaluate(word);
-		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
+		publishGuessUpdate();
 		Dispatcher.Publish('guessFinalized', { });
 		
 		nextGuess();
-		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
+		publishGuessUpdate();
+	};
+	
+	this.Backspace = function () {
+		guess.Backspace();
 	};
 	
 	this.Start = function() {
-		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
+		publishGuessUpdate();
 	};
 };

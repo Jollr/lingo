@@ -23,9 +23,14 @@ var Lingo = function() {
 		currentGame.FinalizeGuess();
 	};
 	
+	var backspace = function() {
+		currentGame.Backspace();
+	};
+	
 	this.Start = function() {
 		Dispatcher.Subscribe('letterTyped', function(message) {onLetter(message.letter)});
 		Dispatcher.Subscribe('finalizeGuessKey', function(message) {onGuessFinalized();});
+		Dispatcher.Subscribe('backspace', function(message) { backspace(); });
 		Dispatcher.Publish('started', {numberOfCharacters: numberOfCharacters, guessesPerWord: guessesPerWord})
 		
 		currentGame.Start();

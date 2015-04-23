@@ -12,6 +12,10 @@
 			Dispatcher.Publish('finalizeGuessKey', { });
 		}
 		
+		if (e.keyCode == 8) { // backspace
+			Dispatcher.Publish('backspace', { });
+		}
+		
 		return false;
 	};
 };
