@@ -1,5 +1,7 @@
-var Letter = function(asChar) {
-	var state = 'open';
+var Letter = function(asChar, overwritable, initialState) {
+	var state = '';
+	if (!initialState) { state = 'open'; }
+	else { state = initialState; }
 	
 	this.Equals = function(otherLetter) { return otherLetter.AsChar() == asChar; }
 	this.GetState = function() { return state; }
@@ -15,17 +17,30 @@ var Letter = function(asChar) {
 			state = 'incorrect';
 		}
 	};
+	this.IsOverwritable = function() {
+		return overwritable;
+	};
 };
 
-var Guess = function(wordSize) {
-	var letters = new Immutable.List();
+var Guess = function(word) {
+	var letters = Immutable.List.of(new Letter(word.get(0).AsChar(), false, 'correct'))
+		.concat(Immutable.Range(1, word.size).map( function() { return new Letter('.', true); }))
+		.toList();
 	
 	this.IsFinished = function() {
-		return letters.size >= wordSize;
+		return !letters.some(function(l) { return l.IsOverwritable(); });
 	};
 	
 	this.Add = function(letter) {
-		letters = letters.push(letter);
+		var index = Immutable.Range(0, word.Size)
+			.filter(function (i) { return letters.get(i).IsOverwritable(); })
+			.first();
+		
+		letters = letters.set(index, letter);
+	};
+	
+	this.Set = function(letter, index) {
+		letters = letters.set(index, letter);
 	};
 	
 	this.GetLetters = function() {
@@ -33,33 +48,26 @@ var Guess = function(wordSize) {
 	};
 	
 	this.Evaluate = function(word) {
-		Immutable.Range(0, wordSize).forEach(function(index) {letters.get(index).Evaluate(word, index);});
+		Immutable.Range(0, word.size).forEach(function(index) {letters.get(index).Evaluate(word, index);});
 	};
 };
 
 var SingleGameOfLingo = function(word) {
-	var self = this;
-	var currentGuess = new Guess(word.size);
-	
+	var currentGuess = new Guess(word);
 	var guesses = Immutable.List.of(currentGuess);
 	
 	var nextGuess = function() {
 		guesses = guesses.push(currentGuess);
-		currentGuess = new Guess(word.size);
+		currentGuess = new Guess(word);
 		
-		var knownLetterIndices = Immutable.Range(0, word.size)
+		// Prefill already known letters
+		Immutable.Range(1, word.size)
 			.filter(function(i) {
 				return guesses
 					.map(function(g) { return g.GetLetters().get(i); })
 					.some(function(l) { return l.Equals(word.get(i)); })
-			});
-		
-		Immutable.Range(0, word.size)
-			.map(function(i) {
-				if (knownLetterIndices.some( function(j) { return i == j; } )) { return word.get(i); }
-				else { return new Letter('.'); }
 			})
-			.forEach(function(l) { currentGuess.Add(l); });
+			.forEach( function(i) { currentGuess.Set( new Letter(word.get(i).AsChar(), true, 'correct'), i); });
 	};
 	
 	this.Letter = function(letter) {
@@ -81,6 +89,6 @@ var SingleGameOfLingo = function(word) {
 	};
 	
 	this.Start = function() {
-		self.Letter(word.get(0));
+		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
 	};
 };
