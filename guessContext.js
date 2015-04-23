@@ -44,8 +44,22 @@ var SingleGameOfLingo = function(word) {
 	var guesses = Immutable.List.of(currentGuess);
 	
 	var nextGuess = function() {
+		guesses = guesses.push(currentGuess);
 		currentGuess = new Guess(word.size);
-		self.Letter(word.get(0));
+		
+		var knownLetterIndices = Immutable.Range(0, word.size)
+			.filter(function(i) {
+				return guesses
+					.map(function(g) { return g.GetLetters().get(i); })
+					.some(function(l) { return l.Equals(word.get(i)); })
+			});
+		
+		Immutable.Range(0, word.size)
+			.map(function(i) {
+				if (knownLetterIndices.some( function(j) { return i == j; } )) { return word.get(i); }
+				else { return new Letter('.'); }
+			})
+			.forEach(function(l) { currentGuess.Add(l); });
 	};
 	
 	this.Letter = function(letter) {
