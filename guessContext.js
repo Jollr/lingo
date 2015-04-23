@@ -38,12 +38,14 @@ var Guess = function(wordSize) {
 };
 
 var SingleGameOfLingo = function(word) {
+	var self = this;
 	var currentGuess = new Guess(word.size);
 	
 	var guesses = Immutable.List.of(currentGuess);
 	
 	var nextGuess = function() {
 		currentGuess = new Guess(word.size);
+		self.Letter(word.get(0));
 	};
 	
 	this.Letter = function(letter) {
@@ -58,12 +60,13 @@ var SingleGameOfLingo = function(word) {
 		
 		currentGuess.Evaluate(word);
 		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
+		Dispatcher.Publish('guessFinalized', { });
 		
 		nextGuess();
-		Dispatcher.Publish('guessFinalized', { });
+		Dispatcher.Publish('guessUpdate', {guess: currentGuess.GetLetters()});
 	};
 	
 	this.Start = function() {
-		this.Letter(word.get(0));
+		self.Letter(word.get(0));
 	};
 };
